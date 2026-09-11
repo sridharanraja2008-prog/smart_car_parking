@@ -3,6 +3,7 @@ import serial
 import threading
 from datetime import datetime
 from pymongo import MongoClient, DESCENDING
+import os
 
 app = Flask(__name__)
 
@@ -29,7 +30,10 @@ CURRENCY_SYMBOL = "₹"
 # Change MONGO_URI if using MongoDB Atlas, e.g.:
 # "mongodb+srv://<user>:<password>@cluster0.mongodb.net/?retryWrites=true&w=majority"
 
-MONGO_URI = "mongodb://localhost:27017"
+MONGO_URI = os.getenv(
+    "MONGO_URI",
+    "mongodb://localhost:27017"
+)
 DB_NAME = "smart_parking"
 
 mongo_client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
