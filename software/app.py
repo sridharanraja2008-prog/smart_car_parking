@@ -39,12 +39,14 @@ DB_NAME = "smart_parking"
 mongo_client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
 db = mongo_client[DB_NAME]
 history_collection = db["parking_history"]
+mongo_connected = False
 
 # Explicit connectivity check — MongoClient() alone does NOT fail even if
 # the server is unreachable, since pymongo connects lazily. This forces
 # a real round-trip so you get a clear yes/no at startup.
 try:
     mongo_client.admin.command("ping")
+    mongo_connected = True
     print(f"[MongoDB] Connected successfully -> {MONGO_URI} (db: {DB_NAME})")
 except Exception as error:
     print(f"[MongoDB] Connection FAILED -> {MONGO_URI}")
@@ -52,12 +54,13 @@ except Exception as error:
     print("[MongoDB] The app will still start, but history/monthly-stats "
           "routes will fail until MongoDB is reachable.")
 
-# Helpful indexes for fast filtering
-history_collection.create_index([("date", DESCENDING)])
-history_collection.create_index([("slot", 1)])
-history_collection.create_index([("cost", 1)])
-history_collection.create_index([("entry_dt", DESCENDING)])
-history_collection.create_index([("month", 1)])
+# Helpful indexes for fast filtering. Keep startup alive if MongoDB is offline.
+if mongo_connected:
+    history_collection.create_index([("date", DESCENDING)])
+    history_collection.create_index([("slot", 1)])
+    history_collection.create_index([("cost", 1)])
+    history_collection.create_index([("entry_dt", DESCENDING)])
+    history_collection.create_index([("month", 1)])
 
 
 # ==========================
