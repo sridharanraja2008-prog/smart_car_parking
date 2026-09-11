@@ -1,3 +1,0 @@
-Flask
-pyserial
-pymongo

@@ -1,0 +1,4 @@
+Flask
+pyserial
+pymongo
+gunicorn
